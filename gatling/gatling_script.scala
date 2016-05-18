@@ -288,15 +288,30 @@ import scala.reflect.runtime.universe._
 			val Synthesisobj = scala.util.parsing.json.JSON.parseFull(session("Synthesis_1").validate[Vector[String]].get(0))
 
 			for( a <- 0 to 9){
-			if(show(Synthesisobj,a,"minValue")==partialminValue((show(Synthesisobj,a,"sensorType")).asInstanceOf[Int]-1)
-			&& show(Synthesisobj,a,"maxValue")==partialMaxValue((show(Synthesisobj,a,"sensorType")).asInstanceOf[Int]-1)
-			&& show(Synthesisobj,a,"mediumValue")==(partialSumValue((show(Synthesisobj,a,"sensorType")).asInstanceOf[Int]-1)/msgPackage).setScale(2, BigDecimal.RoundingMode.HALF_UP)){
+			val remoteMin = show(Synthesisobj,a,"minValue") 
+			val remoteMax = show(Synthesisobj,a,"maxValue") 
+			val remoteAvg = show(Synthesisobj,a,"mediumValue")
+			val sensorType = (show(Synthesisobj,a,"sensorType")).asInstanceOf[Int]
+			val localMin = partialminValue(sensorType-1)
+			val localMax = partialMaxValue(sensorType-1)
+			val localAvg = (partialSumValue(sensorType-1)/msgPackage).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+			if(remoteMin==localMin
+			&& remoteMax==localMax
+			&& remoteAvg==localAvg){
 				println("les résultats sont valides")
+				//call counter max
+				counterMax(a)=0
+				//call counter min
+				counterMin(a)=0
+				//initialise la somme
+				partialSumValue(a)=BigDecimal(0)
 			}else{
-					println("les resultats sont invalides!!")
-									
-					System.exit(0)
-				}
+				println("les resultats sont invalides!!")
+				println(remoteMin==localMin + " " + remoteMin + "==" + localMin)
+				println(remoteMax==localMax + " " + remoteMax + "==" + localMax)
+				println(remoteAvg==localAvg + " " + remoteAvg + "==" + localAvg)
+				System.exit(0)
+			}
 						
 			}
 			session
@@ -342,14 +357,24 @@ import scala.reflect.runtime.universe._
 
   		
   		for( a <- 0 to 9){
-		 	if(show(SynthesisJson,a,"minValue")==totalMinValues((show(SynthesisJson,a,"sensorType")).asInstanceOf[Int]-1)
-			&& show(SynthesisJson,a,"maxValue")==totalMaxValues((show(SynthesisJson,a,"sensorType")).asInstanceOf[Int]-1)
-			&& show(SynthesisJson,a,"mediumValue")==(totalSumValues((show(SynthesisJson,a,"sensorType")).asInstanceOf[Int]-1)/msgPackage).setScale(2, BigDecimal.RoundingMode.HALF_UP)){
+			val remoteMin = show(SynthesisJson,a,"minValue") 
+			val remoteMax = show(SynthesisJson,a,"maxValue") 
+			val remoteAvg = show(SynthesisJson,a,"mediumValue")
+			val sensorType = (show(SynthesisJson,a,"sensorType")).asInstanceOf[Int]
+			val localMin = totalMinValues(sensorType-1)
+			val localMax = totalMaxValues(sensorType-1)
+			val localAvg = (totalSumValues(sensorType-1)/(numOfPackages*msgPackage)).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+		 	if(remoteMin==localMin
+			&& remoteMax==localMax
+			&& remoteAvg==localAvg){
 
 				println("les résultats sont valides")
 
 			}else{
 				println("les resultats sont invalides!!")
+				println(remoteMin==localMin + " " + remoteMin + "==" + localMin)
+				println(remoteMax==localMax + " " + remoteMax + "==" + localMax)
+				println(remoteAvg==localAvg + " " + remoteAvg + "==" + localAvg)
 				resultatValid=false
 				System.exit(1)
 			}
