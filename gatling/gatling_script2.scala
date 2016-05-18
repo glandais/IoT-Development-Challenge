@@ -121,7 +121,7 @@ class InjectionsAndVerificationsGlandais extends Simulation {
 
     def sum(session: Session, keyCount: String, keySum: String, value: Long): Session = {
       val count: Int = session(keyCount).asOption[Int].getOrElse(0)
-      val sum: BigInteger = new BigInteger(session(keySum).asOption[Any].getOrElse("0").toString)
+      val sum: BigInteger = session(keySum).asOption[BigInteger].getOrElse(new BigInteger("0"))
       session.set(keyCount, count + 1).set(keySum, sum.add(BigInteger.valueOf(value)))
     }
 
@@ -198,7 +198,7 @@ class InjectionsAndVerificationsGlandais extends Simulation {
               .post(url)
               .body(StringBody("${json}")).asJSON
               .check(status.is(200)))
-        }.pause(100 milliseconds)
+        }
         //get the parameters of the synthesis call
         .exec(session =>
           prepareQuerySynthese(session, "startTimePackage"))
